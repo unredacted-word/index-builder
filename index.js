@@ -33,7 +33,7 @@ function render(entries) {
   var output = "";
   for (var i = 0; i < entries.length; i++) {
     var item = renderItem(entries[i]);
-    output = `${output}${item}`;
+    output = output + item;
   }
   return "<ol>" + output + "</ol>";
 }
