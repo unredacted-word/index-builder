@@ -15,11 +15,17 @@ function getRanges(array) {
 }
 
 function renderItem(entry) {
-  return `<li class="ix-entry">
-    <span class="ix-entry-name">${entry.name}</span>:
-    <span class="ix-entry-pages">${entry.pages.join(", ")}</span>
-    ${render(entry.entries)}
-  </li>`;
+  return (
+    '<li class="ix-entry">' +
+    '<span class="ix-entry-name">' +
+    entry.name +
+    "</span>: " +
+    '<span class="ix-entry-pages">' +
+    entry.pages.join(", ") +
+    "</span>" +
+    render(entry.entries) +
+    "</li>"
+  );
 }
 
 function render(entries) {
@@ -29,7 +35,7 @@ function render(entries) {
     var item = renderItem(entries[i]);
     output = `${output}${item}`;
   }
-  return `<ol>${output}</ol>`;
+  return "<ol>" + output + "</ol>";
 }
 
 function getIndexEntryNames(e) {
@@ -43,6 +49,18 @@ function getIndexEntryNames(e) {
   return entries.map(function (e) {
     return e.trim();
   });
+}
+
+function getPageNum(element) {
+  var pageNum = Math.floor(Math.random() * 20);
+  if (element.getPrinceBoxes) {
+    var eboxes = element.getPrinceBoxes();
+    if (eboxes.length > 0) {
+      var box = eboxes[0];
+      return box.pageNum - 2; /* -2 remove front blank pages */
+    }
+  }
+  return pageNum;
 }
 
 function getEntryName(name) {
@@ -135,7 +153,7 @@ function buildIndex() {
     // for each index entry name
     for (var b = 0; b < names.length; b++) {
       // get its page number
-      var pageNum = Math.floor(Math.random() * 20);
+      var pageNum = getPageNum(element);
       // for each index tag, create an index entry
       // { id, name, element, pages: [page], entries: [entry]}
       entries = createEntry(entries, names[b], element, pageNum);
