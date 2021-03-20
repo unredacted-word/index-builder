@@ -20,5 +20,5 @@ attribute to specify multiple entries, separated by ;
 
 * `<span class="ix">Chipotle</span>` adds "Chipotle" to index.
 * `<span class="ix" data-ix"McDonald, Ronald">Ronald McDonald</span>` adds "McDonald, Ronald" to index. Note, since it is a proper name, it doesn't add a subentry.
-* `<span class="ix" data-ix"foods;foods, fast food">junk food</span>` adds two
-  entries to the index: "foods" and "food" with "fast food" as a subentry.
+* `<span class="ix" data-ix"foods;snacks, fast food">junk food</span>` adds two
+  entries to the index: "foods", and "snacks" with "fast food" as a subentry.
