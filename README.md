@@ -22,3 +22,12 @@ attribute to specify multiple entries, separated by ;
 * `<span class="ix" data-ix"McDonald, Ronald">Ronald McDonald</span>` adds "McDonald, Ronald" to index. Note, since it is a proper name, it doesn't add a subentry.
 * `<span class="ix" data-ix"foods;snacks, fast food">junk food</span>` adds two
   entries to the index: "foods", and "snacks" with "fast food" as a subentry.
+
+## usage
+
+1. add `index.js` to your page
+2. markup your document
+3. add a placeholder `<div id="index-entries"></div>` where you want the index injected
+4. invoke `buildIndex()` when the page is done loading. profit 💥
+
+the script will collect all `.ix` tags and build the index
