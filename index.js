@@ -1,3 +1,13 @@
+if (window.Prince) {
+  Prince.trackBoxes = true;
+  Prince.registerPostLayoutFunc(function () {
+    /* called after layout finished. If this function modifies the DOM, Prince
+     * will perform layout again on the updated document.
+     */
+    buildIndex();
+  });
+}
+
 function getRanges(array) {
   var ranges = [],
     rstart,
@@ -14,13 +24,32 @@ function getRanges(array) {
   return ranges;
 }
 
+function renderName(name) {
+  /* handle book entries, e.g.
+   * Society of the Spectacle, The (Debord)
+   */
+  if (name.indexOf("(") > -1) {
+    return "<em>" + name + "</em>";
+  } else if (name.indexOf("see also") > -1) {
+    var parts = name.split("see also ");
+    return parts[0] + " <em>see also</em> <strong>" + parts[1] + "</strong>";
+  } else if (name.indexOf(" see ") > -1) {
+    var parts = name.split("see ");
+    return parts[0] + " <em>see</em> <strong>" + parts[1] + "</strong>";
+  } else {
+    return name;
+  }
+}
+
 function renderItem(entry) {
   return (
-    '<li class="ix-entry">' +
+    (entry.name.match(" see ") !== null
+      ? '<li class="ix-entry ix-entry-cr">'
+      : '<li class="ix-entry">') +
     '<span class="ix-entry-name">' +
-    entry.name +
-    "</span>: " +
-    '<span class="ix-entry-pages">' +
+    renderName(entry.name) +
+    "</span>" +
+    '<span class="ix-entry-pages">: ' +
     entry.pages.join(", ") +
     "</span>" +
     render(entry.entries) +
@@ -103,7 +132,6 @@ function createEntry(entries, name, element, pageNum) {
     // create a subentry
     if (entry) {
       // update existing record
-      entry.pages = [].concat(entry.pages).concat(pageNum);
       entry.entries = createEntry(
         entry.entries,
         subEntryName,
@@ -124,7 +152,7 @@ function createEntry(entries, name, element, pageNum) {
   } else {
     if (entry) {
       // update existing record
-      entry.pages = [].concat(entry.pages).concat(pageNum);
+      entry.pages = entry.pages.concat(pageNum);
       entry.entries = [].concat(entry.entries);
       return entries;
     } else {
@@ -135,9 +163,42 @@ function createEntry(entries, name, element, pageNum) {
         pages: [pageNum],
         entries: [],
       };
-      return [].concat(entries).concat(entry);
+      return entries.concat(entry);
     }
   }
+}
+
+// remove duplicates from an array
+function uniq(items) {
+  function unique(value, index, self) {
+    return self.indexOf(value) === index;
+  }
+  return items.filter(unique);
+}
+
+function paginate(entries) {
+  // sort and collapse the pages into ranges
+  return entries.map(function (j) {
+    // sort page numbers
+    var sortedPages = j.pages.sort(function (a, b) {
+      return a - b;
+    });
+    var uniquePages = uniq(sortedPages);
+    var ranged = getRanges(uniquePages);
+    // return object deduped with ranged pages
+    return {
+      name: j.name,
+      element: j.element,
+      pages: ranged,
+      entries: sort(paginate(j.entries)),
+    };
+  });
+}
+
+function sort(entries) {
+  return entries.sort(function (a, b) {
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
 }
 
 function buildIndex() {
@@ -160,34 +221,9 @@ function buildIndex() {
     }
   }
   // sort the list case insensitive
-  var sortedEntries = entries.sort(function (a, b) {
-    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-  });
+  var sortedEntries = sort(entries);
   // sort and collapse the pages into ranges
-  var rangedEntries = sortedEntries.map(function (j) {
-    // sort page numbers
-    var sortedPages = j.pages.sort(function (a, b) {
-      return a - b;
-    });
-    // remove duplicate pages
-    var deDupedPages = [];
-    if (sortedPages.length > 1) {
-      for (var i = 1; i < sortedPages.length; i++) {
-        if (sortedPages[i] !== sortedPages[i - 1]) {
-          deDupedPages.push(sortedPages[i]);
-        }
-      }
-    } else {
-      deDupedPages = [].concat(sortedPages);
-    }
-    var ranged = getRanges(deDupedPages);
-    return {
-      name: j.name,
-      element: j.element,
-      pages: ranged,
-      entries: j.entries,
-    };
-  });
+  var rangedEntries = paginate(sortedEntries);
   // convert list to HTML list
   var str = render(rangedEntries);
   // inject html into the DOM

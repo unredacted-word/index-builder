@@ -19,13 +19,21 @@ attribute to specify multiple entries, separated by ;
 ## examples
 
 * `<span class="ix">Chipotle</span>` adds "Chipotle" to index.
-* `<span class="ix" data-ix"McDonald, Ronald">Ronald McDonald</span>` adds "McDonald, Ronald" to index. Note, since it is a proper name, it doesn't add a subentry.
+* `<span class="ix" data-ix"McDonald, Ronald">Ronald McDonald</span>` adds
+  "McDonald, Ronald" to index. Note, since it is a proper name, it doesn't add
+   a subentry.
 * `<span class="ix" data-ix"foods;snacks, fast food">junk food</span>` adds two
-  entries to the index: "foods", and "snacks" with "fast food" as a subentry.
+  entries to the index: "foods", and "snacks" with "fast food" as a subentry of
+  "snacks".
+* `<span class="ix" data-ix="time, pseudo-cyclical see also pseudo-cyclical
+  time">time</span>` Adds an entry for "time, pseudo-cyclical" with a cross
+  reference to "pseduo-cyclical time". The cross reference page number will 
+  display the page number, instead it'll be listed in the referenced entry.
 
 ## usage
 
 1. add `index.js` to your page
+1. add `.ix-entry-cr .ix-entry-pages { display: none; }` style to page
 2. markup your document
 3. add a placeholder `<div id="index-entries"></div>` where you want the index injected
 4. invoke `buildIndex()` when the page is done loading. profit 💥
